@@ -11,8 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"godocker/internal/cgroup"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,13 +23,14 @@ const (
 )
 
 type Info struct {
-	ID        string    `json:"id"`
-	Pid       string    `json:"pid"`
-	Name      string    `json:"name"`
-	Command   string    `json:"command"`
-	Status    Status    `json:"status"`
-	Volume    string    `json:"volume"`
-	CreatedAt time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	Pid         string    `json:"pid"`
+	Name        string    `json:"name"`
+	Command     string    `json:"command"`
+	Status      Status    `json:"status"`
+	Volume      string    `json:"volume"`
+	PortMapping []string  `json:"port_mapping"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 var (
@@ -44,44 +43,11 @@ var (
 	RuntimeLogFile    = "container.log"
 )
 
-func Run(tty bool, comArray []string, opts ...Option) {
-	options := newOptions().apply(opts...)
-	parent, wPipe := newParentProcess(tty, *options)
-	if err := parent.Start(); err != nil {
-		logrus.Errorf("Start parent procces error: %v", err)
-		return
-	}
-
-	containerName, err := recordContainerInfo(parent.Process.Pid, options.Name, comArray, options.Volume)
-	if err != nil {
-		logrus.Errorf("Record container information error: %v", err)
-		return
-	}
-
-	cGroupManager := cgroup.NewCGroup("godocker.slice")
-	defer func() {
-		if tty {
-			_ = cGroupManager.Destroy()
-			// volume imageName containerName
-			removeWorkSpace(options.Volume, options.Name)
-			removeContainerInfo(containerName)
-		}
-	}()
-	_ = cGroupManager.Set(options.ResourceConfig)
-	_ = cGroupManager.Apply(parent.Process.Pid)
-
-	writeInitCommand(comArray, wPipe)
-
-	if tty {
-		_ = parent.Wait()
-	}
-}
-
 // 1. /proc/self/exe 调用中，/proc/self/ 指的是当前运行进程自己的环境，exec 其实就是调用了自己，使用这种方式对自己进行初始化。
 // 2. args 是参数，其中 init 是传递给本进程的第一个参数。
 // 3. clone 参数就是 namespace 隔离标识。
 // 4. 如果用户指定了 -it 参数，就需要把当前的输出、输入、错误导入到表主输出上
-func newParentProcess(tty bool, options Options) (*exec.Cmd, *os.File) {
+func NewParentProcess(tty bool, options Options) (*exec.Cmd, *os.File) {
 	r, w, err := os.Pipe()
 	if err != nil {
 		logrus.Errorf("New pipe error: %v", err)

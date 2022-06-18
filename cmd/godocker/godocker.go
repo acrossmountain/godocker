@@ -20,6 +20,7 @@ func NewApp() *Docker {
 		logrus.SetReportCaller(true)
 		logrus.SetFormatter(&logrus.JSONFormatter{})
 		logrus.SetOutput(os.Stdout)
+		logrus.SetLevel(logrus.ErrorLevel)
 
 		return nil
 	}
@@ -33,6 +34,7 @@ func NewApp() *Docker {
 		stopCommand,
 		removeCommand,
 		containerCommand,
+		networkCommand,
 	}
 
 	return &Docker{cliApp: cliApp}

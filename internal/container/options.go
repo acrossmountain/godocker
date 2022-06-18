@@ -14,15 +14,17 @@ type Options struct {
 	TTY            bool
 	Detach         bool
 	Volume         string
+	Network        string
 	Envs           []string
+	PortMapping    []string
 	ResourceConfig *subsystem.ResourceConfig
 }
 
-func newOptions() *Options {
+func NewOptions() *Options {
 	return &Options{}
 }
 
-func (o *Options) apply(opts ...Option) *Options {
+func (o *Options) Apply(opts ...Option) *Options {
 	for _, opt := range opts {
 		opt(o)
 	}
@@ -70,5 +72,17 @@ func WithImage(image string) Option {
 func WithEnv(envs []string) Option {
 	return func(opts *Options) {
 		opts.Envs = envs
+	}
+}
+
+func WithNetwork(network string) Option {
+	return func(opts *Options) {
+		opts.Network = network
+	}
+}
+
+func WithPortMapping(portMapping []string) Option {
+	return func(opts *Options) {
+		opts.PortMapping = portMapping
 	}
 }

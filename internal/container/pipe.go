@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func writeInitCommand(comArray []string, w *os.File) {
+func WriteInitCommand(comArray []string, w *os.File) {
 	command := strings.Join(comArray, " ")
 	_, _ = w.WriteString(command)
 	_ = w.Close()

@@ -75,7 +75,7 @@ func createMountPoint(containerName, imageName string) {
 }
 
 // volume imageName containerName
-func removeWorkSpace(volume, containerName string) {
+func RemoveWorkSpace(volume, containerName string) {
 	if volume != "" {
 		volumes := volumeUrlExtract(volume)
 		if len(volumes) == 2 && volumes[0] != "" && volumes[1] != "" {

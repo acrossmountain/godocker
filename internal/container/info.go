@@ -81,7 +81,7 @@ func getContainerPidByName(name string) (string, error) {
 	return info.Pid, nil
 }
 
-func recordContainerInfo(pid int, name string, commands []string, volume string) (string, error) {
+func RecordContainerInfo(pid int, name string, commands []string, volume string) (string, error) {
 	id := pkg.RandStringBytes(10)
 	command := strings.Join(commands, "")
 	if name == "" {
@@ -127,7 +127,7 @@ func recordContainerInfo(pid int, name string, commands []string, volume string)
 	return name, nil
 }
 
-func removeContainerInfo(name string) {
+func RemoveContainerInfo(name string) {
 	dir := fmt.Sprintf(RuntimePath, name)
 	if err := os.RemoveAll(dir); err != nil {
 		logrus.Errorf("Remove dir %s error %v", dir, err)

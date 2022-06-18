@@ -61,6 +61,14 @@ var runCommand = cli.Command{
 			Name:  "e",
 			Usage: "Set environment variables",
 		},
+		cli.StringFlag{
+			Name:  "net",
+			Usage: "container network",
+		},
+		cli.StringSliceFlag{
+			Name:  "p",
+			Usage: "port mapping",
+		},
 	},
 	Action: func(ctx *cli.Context) error {
 		if len(ctx.Args()) < 1 {
@@ -85,14 +93,18 @@ var runCommand = cli.Command{
 		image := commands[0]
 		commands = commands[1:]
 		envs := ctx.StringSlice("e")
+		portMappings := ctx.StringSlice("p")
+		network := ctx.String("net")
 
-		container.Run(tty, commands,
+		Run(tty, commands,
 			container.WithContainerName(name),
 			container.WithResourceConfig(res),
 			container.WithVolume(volume),
 			container.WithDetach(detach),
 			container.WithImage(image),
 			container.WithEnv(envs),
+			container.WithNetwork(network),
+			container.WithPortMapping(portMappings),
 		)
 		return nil
 	},
